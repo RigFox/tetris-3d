@@ -1,0 +1,5 @@
+examples
+*.iml
+.idea
+# Project exclude paths
+/front/node_modules/
