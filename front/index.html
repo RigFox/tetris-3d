@@ -21,8 +21,25 @@
 </head>
 <body>
 
-<script src="js/vendor/three.min.js"></script>
-<script src="js/index.js"></script>
+<script src="js/vendor/three.js"></script>
+<script src="js/vendor/OrbitControls.js"></script>
+<script src="js/utils/Vector3.js"></script>
+<script src="js/TetrisGame.js"></script>
+<script src="js/Render.js"></script>
+
+<script>
+    let game = new TetrisGame(10, 10, 10, 1);
+    let render = new Render();
+
+    game.setNewTetrominoHandler(function () {
+        render.createTetromino(game.current_tetromino, game.current_tetromino_pos);
+    });
+
+    setInterval(function () {
+        game.tick();
+        render.setTetrominoPosition(game.current_tetromino_pos);
+    }, 500)
+</script>
 
 </body>
 </html>
