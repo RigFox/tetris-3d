@@ -37,7 +37,9 @@
 
     setInterval(function () {
         game.tick();
-        render.setTetrominoPosition(game.current_tetromino.pos);
+        if (game.current_tetromino !== null) {
+            render.setTetrominoPosition(game.current_tetromino.pos);
+        }
     }, 500)
 </script>
 

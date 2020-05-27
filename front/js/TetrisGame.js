@@ -18,30 +18,32 @@ class TetrisGame {
     }
 
     init_constant() {
+        // x, z -- width, length
+        // y -- height
         this.TETROMINO = {
             "T": [
                 new Vector(-1, 0, 0),
                 new Vector(0, 0, 0),
                 new Vector(1, 0, 0),
-                new Vector(0, -1, 0)
+                new Vector(0, 0, 1)
             ],
             "S": [ // Also Z
                 new Vector(-1, 0, 0),
                 new Vector(0, 0, 0),
-                new Vector(0, -1, 0),
-                new Vector(1, -1, 0)
+                new Vector(0, 0, 1),
+                new Vector(1, 0, 1)
             ],
             "J": [ // Also L
                 new Vector(-1, 0, 0),
                 new Vector(0, 0, 0),
                 new Vector(1, 0, 0),
-                new Vector(-1, -1, 0)
+                new Vector(-1, 0, 1)
             ],
             "O": [
                 new Vector(0, 0, 0),
                 new Vector(1, 0, 0),
-                new Vector(0, -1, 0),
-                new Vector(1, -1, 0)
+                new Vector(0, 0, 1),
+                new Vector(1, 0, 1)
             ],
             "I": [
                 new Vector(-1, 0, 0),
@@ -112,12 +114,10 @@ class TetrisGame {
         let stopTetromino = false;
 
         this.current_tetromino.real_pos().forEach((vector) => {
-            if (vector.z + 1 === this.cup_height) {
+            if (vector.y === 0) {
                 // Dno
                 stopTetromino = true;
-            }
-
-            if (this.cup[vector.x][vector.y][vector.z + 1]) {
+            } else if (this.cup[vector.x][vector.y - 1][vector.z]) {
                 // Another tetromino
                 stopTetromino = true;
             }
@@ -130,7 +130,7 @@ class TetrisGame {
 
             this.current_tetromino = null;
         } else {
-            this.current_tetromino.pos.z += 1;
+            this.current_tetromino.pos.y -= 1;
         }
     }
 
@@ -140,7 +140,7 @@ class TetrisGame {
         this.current_tetromino = new Tetromino(
             tetromino_type,
             this.TETROMINO[tetromino_type],
-            new Vector(Math.round(this.cup_width / 2), Math.round(this.cup_length / 2), 0)
+            new Vector(Math.round(this.cup_width / 2), this.cup_height - 1, Math.round(this.cup_length / 2))
         )
 
         this.newTetrominoHandler();

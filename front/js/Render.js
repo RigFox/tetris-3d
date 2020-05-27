@@ -2,6 +2,7 @@ class Render {
     constructor() {
         this.createScene();
         this.createBackground();
+        this.createGrid();
         this.createLights();
         this.play();
     }
@@ -26,14 +27,22 @@ class Render {
         this.controls.maxDistance = 20;
         this.controls.minDistance = 5;
 
-        this.controls.maxPolarAngle = Math.PI / 4;
-        this.controls.minPolarAngle = -Math.PI / 2;
-
         this.camera.position.set(10, 10, -3);
 
         this.controls.target.set(5, 5, 5);
 
         this.controls.update();
+
+
+    }
+
+    createGrid() {
+        for (let i = 0; i < 10; i++) {
+            let gridHelper = new THREE.GridHelper(10, 10);
+            gridHelper.position.set(5, i, 5);
+            this.scene.add(gridHelper);
+        }
+
     }
 
     createBackground() {
