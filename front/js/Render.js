@@ -2,6 +2,7 @@ class Render {
     constructor() {
         this.createScene();
         this.createBackground();
+        this.createLights();
         this.play();
     }
 
@@ -13,7 +14,7 @@ class Render {
 
         this.scene = new THREE.Scene();
 
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({antialias: true, autoSize: true});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
@@ -26,7 +27,7 @@ class Render {
         this.controls.minDistance = 5;
 
         this.controls.maxPolarAngle = Math.PI / 4;
-        this.controls.minPolarAngle = - Math.PI / 2;
+        this.controls.minPolarAngle = -Math.PI / 2;
 
         this.camera.position.set(10, 10, -3);
 
@@ -44,6 +45,24 @@ class Render {
 
         this.starSphere = new THREE.Mesh(geometry, material);
         this.scene.add(this.starSphere);
+    }
+
+    createLights() {
+        let light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(0, 10 + 1, 0);
+        this.scene.add(light);
+        let sideLight1 = new THREE.PointLight(0xffffff, 1, 10);
+        sideLight1.position.set(Math.floor(10 / 2), Math.floor(10 / 2), -7);
+        this.scene.add(sideLight1);
+        let sideLight2 = new THREE.PointLight(0xffffff, 1, 10);
+        sideLight2.position.set(Math.floor(10 / 2), Math.floor(10 / 2), 7);
+        this.scene.add(sideLight2);
+        let sideLight3 = new THREE.PointLight(0xffffff, 1, 10);
+        sideLight3.position.set(7, Math.floor(10 / 2), Math.floor(10 / 2));
+        this.scene.add(sideLight3);
+        let sideLight4 = new THREE.PointLight(0xffffff, 1, 10);
+        sideLight4.position.set(-7, Math.floor(10 / 2), Math.floor(10 / 2));
+        this.scene.add(sideLight4);
     }
 
     play() {
@@ -67,7 +86,7 @@ class Render {
             geometry.merge(tmpGeometry.geometry, tmpGeometry.matrix);
         }
 
-        const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+        const material = new THREE.MeshPhongMaterial({color: 0x00ff00});
 
         this.tetromino = new THREE.Mesh(geometry, material);
         this.tetromino.position.set(pos.x, pos.y, pos.z);

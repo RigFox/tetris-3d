@@ -8,7 +8,6 @@ class TetrisGame {
         this.random_seed = random_seed;
 
         this.current_tetromino = null;
-        this.current_tetromino_pos = null;
 
         this.init_constant()
         this.prepare_cup()
@@ -112,52 +111,56 @@ class TetrisGame {
         // logic
         let stopTetromino = false;
 
-        for (let i = 0; i < this.current_tetromino.length; i++) {
-            let real_vector = this.current_tetromino_pos.add(this.current_tetromino[i]);
-
-            if (real_vector.z + 1 === this.cup_height) {
+        this.current_tetromino.real_pos().forEach((vector) => {
+            if (vector.z + 1 === this.cup_height) {
                 // Dno
                 stopTetromino = true;
-                break;
             }
 
-            if (this.cup[real_vector.x][real_vector.y][real_vector.z + 1]) {
+            if (this.cup[vector.x][vector.y][vector.z + 1]) {
                 // Another tetromino
                 stopTetromino = true;
-                break;
             }
-        }
+        })
 
         if (stopTetromino) {
-            for (let i = 0; i < this.current_tetromino.length; i++) {
-                let real_vector = this.current_tetromino_pos.add(this.current_tetromino[i]);
-
-                this.cup[real_vector.x][real_vector.y][real_vector.z] = true;
-            }
+            this.current_tetromino.real_pos().forEach((vector) => {
+                this.cup[vector.x][vector.y][vector.z] = true;
+            })
 
             this.current_tetromino = null;
         } else {
-            this.current_tetromino_pos.z += 1;
+            this.current_tetromino.pos.z += 1;
         }
     }
 
     create_tetromino() {
         let tetromino_type = this.TETROMINO_LIST[this.random()];
 
-        let new_tetromino = [];
-
-        this.TETROMINO[tetromino_type].forEach(function (vector) {
-            new_tetromino.push(Vector.copy(vector));
-        })
-
-        this.current_tetromino = new_tetromino;
-
-        this.current_tetromino_pos = new Vector(
-            Math.round(this.cup_width / 2),
-            Math.round(this.cup_length / 2),
-            0
-        );
+        this.current_tetromino = new Tetromino(
+            tetromino_type,
+            this.TETROMINO[tetromino_type],
+            new Vector(Math.round(this.cup_width / 2), Math.round(this.cup_length / 2), 0)
+        )
 
         this.newTetrominoHandler();
+    }
+}
+
+class Tetromino {
+    constructor(type, form, pos) {
+        this.form = [];
+        this.type = type;
+        this.pos = pos;
+
+        form.forEach((vector) => {
+            this.form.push(Vector.copy(vector));
+        })
+    }
+
+    real_pos() {
+        return this.form.map((vector) => {
+            return vector.add(this.pos);
+        })
     }
 }

@@ -32,12 +32,12 @@
     let render = new Render();
 
     game.setNewTetrominoHandler(function () {
-        render.createTetromino(game.current_tetromino, game.current_tetromino_pos);
+        render.createTetromino(game.current_tetromino.form, game.current_tetromino.pos);
     });
 
     setInterval(function () {
         game.tick();
-        render.setTetrominoPosition(game.current_tetromino_pos);
+        render.setTetrominoPosition(game.current_tetromino.pos);
     }, 500)
 </script>
 
