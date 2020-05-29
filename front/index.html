@@ -35,12 +35,35 @@
         render.createTetromino(game.current_tetromino.form, game.current_tetromino.pos);
     });
 
-    setInterval(function () {
+    game_loop = function () {
         game.tick();
         if (game.current_tetromino !== null) {
             render.setTetrominoPosition(game.current_tetromino.pos);
         }
-    }, 500)
+
+        requestAnimationFrame(game_loop)
+    }
+    game_loop();
+
+    document.addEventListener('keydown', function (event) {
+        switch (event.key) {
+            case "a":
+                game.input("left");
+                break;
+            case "d":
+                game.input("right");
+                break;
+            case "w":
+                game.input("up");
+                break;
+            case "s":
+                game.input("down");
+                break;
+            case " ": // Space
+                game.input("drop");
+                break;
+        }
+    });
 </script>
 
 </body>

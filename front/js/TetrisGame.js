@@ -9,8 +9,11 @@ class TetrisGame {
 
         this.current_tetromino = null;
 
-        this.init_constant()
-        this.prepare_cup()
+        this.lastUpdate = Date.now();
+        this.tetromino_timer = 0;
+
+        this.init_constant();
+        this.prepare_cup();
     }
 
     setNewTetrominoHandler(handler) {
@@ -106,31 +109,96 @@ class TetrisGame {
     }
 
     tick() {
-        if (this.current_tetromino === null) {
-            this.create_tetromino();
-        }
+        let now = Date.now();
+        let dt = now - this.lastUpdate;
+        this.lastUpdate = now;
 
-        // logic
-        let stopTetromino = false;
+        this.update(dt);
+    }
 
-        this.current_tetromino.real_pos().forEach((vector) => {
-            if (vector.y === 0) {
-                // Dno
-                stopTetromino = true;
-            } else if (this.cup[vector.x][vector.y - 1][vector.z]) {
-                // Another tetromino
-                stopTetromino = true;
+    update(dt) {
+        this.tetromino_timer += dt;
+
+        if (this.tetromino_timer > 1000) {
+            this.tetromino_timer = 0;
+
+            if (this.current_tetromino === null) {
+                this.create_tetromino();
             }
-        })
 
-        if (stopTetromino) {
+            // logic
+            let stopTetromino = false;
+
             this.current_tetromino.real_pos().forEach((vector) => {
-                this.cup[vector.x][vector.y][vector.z] = true;
+                if (vector.y === 0) {
+                    // Dno
+                    stopTetromino = true;
+                } else if (this.cup[vector.x][vector.y - 1][vector.z]) {
+                    // Another tetromino
+                    stopTetromino = true;
+                }
             })
 
-            this.current_tetromino = null;
-        } else {
-            this.current_tetromino.pos.y -= 1;
+            if (stopTetromino) {
+                this.current_tetromino.real_pos().forEach((vector) => {
+                    this.cup[vector.x][vector.y][vector.z] = true;
+                })
+
+                this.current_tetromino = null;
+            } else {
+                this.current_tetromino.pos.y -= 1;
+            }
+        }
+    }
+
+    input(move) {
+        switch (move) {
+            case "left":
+                this.move_tetromino(new Vector(1, 0, 0));
+                break;
+            case "right":
+                this.move_tetromino(new Vector(-1, 0, 0));
+                break
+            case "up":
+                this.move_tetromino(new Vector(0, 0, 1));
+                break
+            case "down":
+                this.move_tetromino(new Vector(0, 0, -1));
+                break
+            case "drop":
+                this.move_tetromino(new Vector(0, -1, 0));
+                break;
+        }
+    }
+
+    move_tetromino(move_vector) {
+        if (this.current_tetromino !== null) {
+            let allow_move = true;
+
+            this.current_tetromino.move(move_vector).forEach((vector) => {
+                if (vector.x >= this.cup_width || vector.x < 0) {
+                    allow_move = false;
+                    return;
+                }
+
+                if (vector.z >= this.cup_length || vector.z < 0) {
+                    allow_move = false;
+                    return;
+                }
+
+                if (vector.y < 0) {
+                    allow_move = false
+                    return;
+                }
+
+                if (this.cup[vector.x][vector.y][vector.z]) {
+                    allow_move = false;
+                }
+            });
+
+            if (allow_move) {
+                this.current_tetromino.pos = this.current_tetromino.pos.add(move_vector)
+            }
         }
     }
 
@@ -161,6 +229,12 @@ class Tetromino {
     real_pos() {
         return this.form.map((vector) => {
             return vector.add(this.pos);
+        })
+    }
+
+    move(move_vector) {
+        return this.form.map((vector) => {
+            return vector.add(this.pos.add(move_vector));
         })
     }
 }
