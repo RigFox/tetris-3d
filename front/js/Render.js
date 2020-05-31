@@ -26,6 +26,7 @@ class Render {
         this.controls.dampingFactor = 0.4;
         this.controls.maxDistance = 20;
         this.controls.minDistance = 5;
+        this.controls.enablePan = false;
 
         this.camera.position.set(10, 10, -3);
 
@@ -105,5 +106,10 @@ class Render {
 
     setTetrominoPosition(pos) {
         this.tetromino.position.set(pos.x, pos.y, pos.z);
+    }
+
+    rotateTetromino(tetromino, pos) {
+        this.scene.remove(this.tetromino);
+        this.createTetromino(tetromino, pos);
     }
 }

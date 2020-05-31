@@ -24,6 +24,7 @@
 <script src="js/vendor/three.js"></script>
 <script src="js/vendor/OrbitControls.js"></script>
 <script src="js/utils/Vector3.js"></script>
+<script src="js/utils/Matrix.js"></script>
 <script src="js/TetrisGame.js"></script>
 <script src="js/Render.js"></script>
 
@@ -34,6 +35,10 @@
     game.setNewTetrominoHandler(function () {
         render.createTetromino(game.current_tetromino.form, game.current_tetromino.pos);
     });
+
+    game.setRotateTetrominoHandler(function () {
+        render.rotateTetromino(game.current_tetromino.form, game.current_tetromino.pos);
+    })
 
     game_loop = function () {
         game.tick();
@@ -47,20 +52,39 @@
 
     document.addEventListener('keydown', function (event) {
         switch (event.key) {
-            case "a":
+            case "ArrowLeft":
                 game.input("left");
                 break;
-            case "d":
+            case "ArrowRight":
                 game.input("right");
                 break;
-            case "w":
+            case "ArrowUp":
                 game.input("up");
                 break;
-            case "s":
+            case "ArrowDown":
                 game.input("down");
                 break;
             case " ": // Space
                 game.input("drop");
+                break;
+            // TODO: Корректно обрабатывать любую раскладку клавиш
+            case "d":
+                game.input("z_clockwise");
+                break;
+            case "a":
+                game.input("z_counterclockwise");
+                break;
+            case "e":
+                game.input("y_clockwise");
+                break;
+            case "q":
+                game.input("y_counterclockwise");
+                break;
+            case "w":
+                game.input("x_clockwise");
+                break;
+            case "s":
+                game.input("x_counterclockwise");
                 break;
         }
     });

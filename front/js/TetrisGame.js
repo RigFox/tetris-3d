@@ -8,6 +8,8 @@ class TetrisGame {
         this.random_seed = random_seed;
 
         this.current_tetromino = null;
+        this.move_vector = null;
+        this.rotate_matrix = null;
 
         this.lastUpdate = Date.now();
         this.tetromino_timer = 0;
@@ -18,6 +20,10 @@ class TetrisGame {
 
     setNewTetrominoHandler(handler) {
         this.newTetrominoHandler = handler;
+    }
+
+    setRotateTetrominoHandler(handler) {
+        this.rotateTetrominoHandler = handler;
     }
 
     init_constant() {
@@ -57,36 +63,36 @@ class TetrisGame {
         };
         this.TETROMINO_LIST = ["T", "S", "J", "O", "I"];
         this.ROTATE = {
-            "x_clockwise": [
-                [1, 0, 0],
-                [0, 0, 1],
-                [0, -1, 0]
-            ],
-            "x_counterclockwise": [
+            "x_clockwise": new Matrix([
                 [1, 0, 0],
                 [0, 0, -1],
                 [0, 1, 0]
-            ],
-            "y_clockwise": [
+            ]),
+            "x_counterclockwise": new Matrix([
+                [1, 0, 0],
+                [0, 0, 1],
+                [0, -1, 0]
+            ]),
+            "y_clockwise": new Matrix([
                 [0, 0, -1],
                 [0, 1, 0],
                 [1, 0, 0]
-            ],
-            "y_counterclockwise": [
+            ]),
+            "y_counterclockwise": new Matrix([
                 [0, 0, 1],
                 [0, 1, 0],
                 [-1, 0, 0]
-            ],
-            "z_clockwise": [
+            ]),
+            "z_clockwise": new Matrix([
                 [0, 1, 0],
                 [-1, 0, 0],
                 [0, 0, 1]
-            ],
-            "z_counterclockwise": [
+            ]),
+            "z_counterclockwise": new Matrix([
                 [0, -1, 0],
                 [1, 0, 0],
                 [0, 0, 1]
-            ]
+            ])
         };
     }
 
@@ -119,6 +125,18 @@ class TetrisGame {
     update(dt) {
         this.tetromino_timer += dt;
 
+        if (this.move_vector !== null) {
+            this.move_tetromino(this.move_vector);
+
+            // TODO: Сбрасывать drop таймер, если был ручной drop
+            this.move_vector = null;
+        }
+
+        if (this.rotate_matrix !== null) {
+            this.rotate_tetromino();
+            this.rotate_matrix = null;
+        }
+
         if (this.tetromino_timer > 1000) {
             this.tetromino_timer = 0;
 
@@ -126,81 +144,115 @@ class TetrisGame {
                 this.create_tetromino();
             }
 
-            // logic
-            let stopTetromino = false;
+            let allowMove = this.move_tetromino(new Vector(0, -1, 0));
 
-            this.current_tetromino.real_pos().forEach((vector) => {
-                if (vector.y === 0) {
-                    // Dno
-                    stopTetromino = true;
-                } else if (this.cup[vector.x][vector.y - 1][vector.z]) {
-                    // Another tetromino
-                    stopTetromino = true;
-                }
-            })
-
-            if (stopTetromino) {
+            if (!allowMove) {
                 this.current_tetromino.real_pos().forEach((vector) => {
                     this.cup[vector.x][vector.y][vector.z] = true;
                 })
 
                 this.current_tetromino = null;
-            } else {
-                this.current_tetromino.pos.y -= 1;
             }
         }
     }
 
     input(move) {
         switch (move) {
+            // TODO: Завести enum движений
             case "left":
-                this.move_tetromino(new Vector(1, 0, 0));
+                this.move_vector = new Vector(1, 0, 0)
                 break;
             case "right":
-                this.move_tetromino(new Vector(-1, 0, 0));
+                this.move_vector = new Vector(-1, 0, 0)
                 break
             case "up":
-                this.move_tetromino(new Vector(0, 0, 1));
+                this.move_vector = new Vector(0, 0, 1)
                 break
             case "down":
-                this.move_tetromino(new Vector(0, 0, -1));
+                this.move_vector = new Vector(0, 0, -1)
                 break
             case "drop":
-                this.move_tetromino(new Vector(0, -1, 0));
+                this.move_vector = new Vector(0, -1, 0)
+                break;
+            case "x_clockwise":
+                this.rotate_matrix = this.ROTATE["x_clockwise"];
+                break;
+            case "x_counterclockwise":
+                this.rotate_matrix = this.ROTATE["x_counterclockwise"];
+                break;
+            case "y_clockwise":
+                this.rotate_matrix = this.ROTATE["y_clockwise"];
+                break;
+            case "y_counterclockwise":
+                this.rotate_matrix = this.ROTATE["y_counterclockwise"];
+                break;
+            case "z_clockwise":
+                this.rotate_matrix = this.ROTATE["z_clockwise"];
+                break;
+            case "z_counterclockwise":
+                this.rotate_matrix = this.ROTATE["z_counterclockwise"];
                 break;
         }
     }
 
     move_tetromino(move_vector) {
         if (this.current_tetromino !== null) {
-            let allow_move = true;
-
-            this.current_tetromino.move(move_vector).forEach((vector) => {
-                if (vector.x >= this.cup_width || vector.x < 0) {
-                    allow_move = false;
-                    return;
-                }
-
-                if (vector.z >= this.cup_length || vector.z < 0) {
-                    allow_move = false;
-                    return;
-                }
-
-                if (vector.y < 0) {
-                    allow_move = false
-                    return;
-                }
-
-                if (this.cup[vector.x][vector.y][vector.z]) {
-                    allow_move = false;
-                }
-            });
+            let allow_move = this.check_position(this.current_tetromino.move(move_vector));
 
             if (allow_move) {
-                this.current_tetromino.pos = this.current_tetromino.pos.add(move_vector)
+                this.current_tetromino.pos = this.current_tetromino.pos.add(move_vector);
             }
+
+            return allow_move;
         }
+
+        return false;
     }
+
+    rotate_tetromino() {
+        if (this.current_tetromino !== null) {
+            let allow_move = this.check_position(this.current_tetromino.rotate(this.rotate_matrix));
+
+            if (allow_move) {
+                this.current_tetromino.form = this.current_tetromino.rotate(this.rotate_matrix);
+                this.rotateTetrominoHandler();
+            }
+
+            return allow_move;
+        }
+
+        return false;
+    }
+
+    check_position(vectors) {
+        let allowMove = true;
+
+        vectors.forEach((vector) => {
+            vector = vector.add(this.current_tetromino.pos);
+
+            if (vector.x >= this.cup_width || vector.x < 0) {
+                allowMove = false;
+                return;
+            }
+
+            if (vector.z >= this.cup_length || vector.z < 0) {
+                allowMove = false;
+                return;
+            }
+
+            if (vector.y < 0) {
+                allowMove = false;
+                return;
+            }
+
+            if (this.cup[vector.x][vector.y][vector.z]) {
+                allowMove = false;
+            }
+        })
+
+        return allowMove;
+    }
+
 
     create_tetromino() {
         let tetromino_type = this.TETROMINO_LIST[this.random()];
@@ -234,7 +286,13 @@ class Tetromino {
 
     move(move_vector) {
         return this.form.map((vector) => {
-            return vector.add(this.pos.add(move_vector));
+            return vector.add(move_vector);
         })
+    }
+
+    rotate(rotate_matrix) {
+        return this.form.map((vector) => {
+            return rotate_matrix.mul2vec(vector);
+        });
     }
 }
