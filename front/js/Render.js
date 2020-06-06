@@ -1,10 +1,22 @@
 class Render {
     constructor() {
+        this.initConstant();
+
         this.createScene();
         this.createBackground();
         this.createGrid();
         this.createLights();
         this.play();
+    }
+
+    initConstant() {
+        this.TETROMINO_COLORS = {
+            "T": 0xd31e1e,
+            "S": 0x57b21d,
+            "J": 0xe35d27,
+            "O": 0xd38a1e,
+            "I": 0x1a9ad4
+        }
     }
 
     createScene() {
@@ -33,17 +45,14 @@ class Render {
         this.controls.target.set(5, 5, 5);
 
         this.controls.update();
-
-
     }
 
     createGrid() {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 1; i++) {
             let gridHelper = new THREE.GridHelper(10, 10);
-            gridHelper.position.set(5, i, 5);
+            gridHelper.position.set(4.5, i, 4.5);
             this.scene.add(gridHelper);
         }
-
     }
 
     createBackground() {
@@ -58,21 +67,15 @@ class Render {
     }
 
     createLights() {
-        let light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(0, 10 + 1, 0);
-        this.scene.add(light);
-        let sideLight1 = new THREE.PointLight(0xffffff, 1, 10);
-        sideLight1.position.set(Math.floor(10 / 2), Math.floor(10 / 2), -7);
-        this.scene.add(sideLight1);
-        let sideLight2 = new THREE.PointLight(0xffffff, 1, 10);
-        sideLight2.position.set(Math.floor(10 / 2), Math.floor(10 / 2), 7);
-        this.scene.add(sideLight2);
-        let sideLight3 = new THREE.PointLight(0xffffff, 1, 10);
-        sideLight3.position.set(7, Math.floor(10 / 2), Math.floor(10 / 2));
-        this.scene.add(sideLight3);
-        let sideLight4 = new THREE.PointLight(0xffffff, 1, 10);
-        sideLight4.position.set(-7, Math.floor(10 / 2), Math.floor(10 / 2));
-        this.scene.add(sideLight4);
+        this.scene.add(new THREE.AmbientLight(0xffffff));
+
+        const light1 = new THREE.PointLight(0xffffff, 1, 100);
+        light1.position.set(10, 10, -5);
+        this.scene.add(light1);
+
+        const light2 = new THREE.PointLight(0xff0000, 1, 100);
+        light2.position.set(0, 0, -5);
+        this.scene.add(light2);
     }
 
     play() {
@@ -87,16 +90,18 @@ class Render {
     createTetromino(tetromino, pos) {
         const geometry = new THREE.BoxGeometry();
 
-        for (let i = 0; i < tetromino.length; i++) {
+        tetromino.form.forEach(vector => {
             let tmpGeometry = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-            tmpGeometry.position.x = tetromino[i].x;
-            tmpGeometry.position.y = tetromino[i].y;
-            tmpGeometry.position.z = tetromino[i].z;
+            tmpGeometry.position.x = vector.x;
+            tmpGeometry.position.y = vector.y;
+            tmpGeometry.position.z = vector.z;
             tmpGeometry.updateMatrix();
             geometry.merge(tmpGeometry.geometry, tmpGeometry.matrix);
-        }
+        })
 
-        const material = new THREE.MeshPhongMaterial({color: 0x00ff00});
+        const material = new THREE.MeshPhongMaterial({
+            color: this.TETROMINO_COLORS[tetromino.type]
+        });
 
         this.tetromino = new THREE.Mesh(geometry, material);
         this.tetromino.position.set(pos.x, pos.y, pos.z);

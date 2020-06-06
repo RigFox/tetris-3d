@@ -33,11 +33,11 @@
     let render = new Render();
 
     game.setNewTetrominoHandler(function () {
-        render.createTetromino(game.current_tetromino.form, game.current_tetromino.pos);
+        render.createTetromino(game.current_tetromino, game.current_tetromino.pos);
     });
 
     game.setRotateTetrominoHandler(function () {
-        render.rotateTetromino(game.current_tetromino.form, game.current_tetromino.pos);
+        render.rotateTetromino(game.current_tetromino, game.current_tetromino.pos);
     })
 
     game_loop = function () {
