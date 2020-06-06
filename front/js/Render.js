@@ -4,7 +4,10 @@ class Render {
         this.cup_length = cup_length;
         this.cup_height = cup_height;
 
+        this.tetromino = null;
+
         this.initConstant();
+        this.prepareCup();
 
         this.createScene();
         this.createBackground();
@@ -21,6 +24,10 @@ class Render {
             "O": 0xd38a1e,
             "I": 0x1a9ad4
         }
+    }
+
+    prepareCup() {
+        this.cup = Helper.create3DMatrix(this.cup_width, this.cup_height, this.cup_length, false);
     }
 
     createScene() {
@@ -99,7 +106,25 @@ class Render {
         this.starSphere.rotation.y += 0.0001;
     }
 
+    createBlock(type, x, y, z) {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshPhongMaterial({
+            color: this.TETROMINO_COLORS[type]
+        });
+
+        const block = new THREE.Mesh(geometry, material);
+        block.position.set(x, y, z);
+
+        return block;
+    }
+
     createTetromino(tetromino, pos) {
+        if (this.tetromino !== null) {
+            this.tetromino.geometry.dispose();
+            this.tetromino.material.dispose();
+            this.scene.remove(this.tetromino);
+        }
+
         const geometry = new THREE.BoxGeometry();
 
         tetromino.form.forEach(vector => {
@@ -126,7 +151,34 @@ class Render {
     }
 
     rotateTetromino(tetromino, pos) {
+        this.tetromino.geometry.dispose();
+        this.tetromino.material.dispose();
         this.scene.remove(this.tetromino);
         this.createTetromino(tetromino, pos);
+    }
+
+    updateCup(game_cup) {
+        Helper.forEachMatrix(game_cup, (value, x, y, z) => {
+            let cup_value = this.cup[x][y][z];
+
+            if (value === false && cup_value !== false) {
+                this.cup[x][y][z] = false;
+
+                cup_value.geometry.dispose();
+                cup_value.material.dispose();
+                this.scene.remove(cup_value);
+            }
+
+            if (value !== false && cup_value === false) {
+                this.cup[x][y][z] = this.createBlock(value, x, y, z);
+                this.scene.add(this.cup[x][y][z]);
+            }
+
+            if (value !== false && cup_value !== false) {
+                cup_value.material.color.setHex(this.TETROMINO_COLORS[value]);
+            }
+        });
+
+        this.renderer.renderLists.dispose();
     }
 }

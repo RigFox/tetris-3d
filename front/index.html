@@ -25,6 +25,7 @@
 <script src="js/vendor/OrbitControls.js"></script>
 <script src="js/utils/Vector3.js"></script>
 <script src="js/utils/Matrix.js"></script>
+<script src="js/utils/Helper.js"></script>
 <script src="js/TetrisGame.js"></script>
 <script src="js/Render.js"></script>
 
@@ -38,11 +39,16 @@
 
     game.setNewTetrominoHandler(function () {
         render.createTetromino(game.current_tetromino, game.current_tetromino.pos);
+        render.updateCup(game.cup);
     });
 
     game.setRotateTetrominoHandler(function () {
         render.rotateTetromino(game.current_tetromino, game.current_tetromino.pos);
-    })
+    });
+
+    game.setDestroyPlaneHandler(function () {
+        render.updateCup(game.cup);
+    });
 
     game_loop = function () {
         game.tick();
@@ -53,6 +59,12 @@
         requestAnimationFrame(game_loop)
     }
     game_loop();
+
+    Helper.forEachMatrix(game.cup, (value, x, y, z) => {
+        if (y === 0 && x < 5) {
+            game.cup[x][y][z] = "T";
+        }
+    });
 
     document.addEventListener('keydown', function (event) {
         switch (event.key) {

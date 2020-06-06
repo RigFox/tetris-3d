@@ -26,6 +26,10 @@ class TetrisGame {
         this.rotateTetrominoHandler = handler;
     }
 
+    setDestroyPlaneHandler(handler) {
+        this.destroyPlaneHandler = handler;
+    }
+
     initConstant() {
         // x, z -- width, length
         // y -- height
@@ -97,15 +101,7 @@ class TetrisGame {
     }
 
     prepareCup() {
-        this.cup = new Array(this.cup_width);
-
-        for (let i = 0; i < this.cup_width; i++) {
-            this.cup[i] = new Array(this.cup_height);
-
-            for (let j = 0; j < this.cup_height; j++) {
-                this.cup[i][j] = new Array(this.cup_length).fill(false);
-            }
-        }
+        this.cup = Helper.create3DMatrix(this.cup_width, this.cup_height, this.cup_length, false);
     }
 
     random() {
@@ -148,12 +144,14 @@ class TetrisGame {
 
             if (!allowMove) {
                 this.current_tetromino.real_pos().forEach((vector) => {
-                    this.cup[vector.x][vector.y][vector.z] = true;
+                    this.cup[vector.x][vector.y][vector.z] = this.current_tetromino.type;
                 })
 
-                this.current_tetromino = null;
+                this.createTetromino();
             }
         }
+
+        this.checkPlanes();
     }
 
     input(move) {
@@ -245,14 +243,13 @@ class TetrisGame {
                 return;
             }
 
-            if (this.cup[vector.x][vector.y][vector.z]) {
+            if (this.cup[vector.x][vector.y][vector.z] !== false) {
                 allowMove = false;
             }
         })
 
         return allowMove;
     }
-
 
     createTetromino() {
         let tetromino_type = this.TETROMINO_LIST[this.random()];
@@ -264,6 +261,37 @@ class TetrisGame {
         )
 
         this.newTetrominoHandler();
+    }
+
+    checkPlanes() {
+        for (let y = this.cup_height - 1; y >= 0; y--) {
+            if (this.isFullPlane(y)) {
+                this.movePlaneDown(y);
+                this.destroyPlaneHandler();
+            }
+        }
+    }
+
+    isFullPlane(y) {
+        for (let x = 0; x < this.cup_width; x++) {
+            for (let z = 0; z < this.cup_length; z++) {
+                if (this.cup[x][y][z] === false) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    movePlaneDown(start_y) {
+        for (let y = start_y; y < this.cup_height - 1; y++) {
+            for (let x = 0; x < this.cup_width; x++) {
+                for (let z = 0; z < this.cup_length; z++) {
+                    this.cup[x][y][z] = this.cup[x][y + 1][z]
+                }
+            }
+        }
     }
 }
 
