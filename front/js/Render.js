@@ -1,5 +1,9 @@
 class Render {
-    constructor() {
+    constructor(cup_width, cup_length, cup_height) {
+        this.cup_width = cup_width;
+        this.cup_length = cup_length;
+        this.cup_height = cup_height;
+
         this.initConstant();
 
         this.createScene();
@@ -40,17 +44,25 @@ class Render {
         this.controls.minDistance = 5;
         this.controls.enablePan = false;
 
-        this.camera.position.set(10, 10, -3);
+        this.camera.position.set(this.cup_width, this.cup_height, -3);
 
-        this.controls.target.set(5, 5, 5);
+        this.controls.target.set(
+            Math.round(this.cup_width / 2),
+            Math.round(this.cup_height / 2),
+            Math.round(this.cup_length / 2),
+        );
 
         this.controls.update();
     }
 
     createGrid() {
         for (let i = 0; i < 1; i++) {
-            let gridHelper = new THREE.GridHelper(10, 10);
-            gridHelper.position.set(4.5, i, 4.5);
+            let gridHelper = new THREE.GridHelper(this.cup_width, this.cup_length);
+            gridHelper.position.set(
+                (this.cup_width / 2) - 0.5,
+                i,
+                (this.cup_length / 2) - 0.5
+            );
             this.scene.add(gridHelper);
         }
     }
@@ -70,7 +82,7 @@ class Render {
         this.scene.add(new THREE.AmbientLight(0xffffff));
 
         const light1 = new THREE.PointLight(0xffffff, 1, 100);
-        light1.position.set(10, 10, -5);
+        light1.position.set(this.cup_width, this.cup_height, -5);
         this.scene.add(light1);
 
         const light2 = new THREE.PointLight(0xff0000, 1, 100);

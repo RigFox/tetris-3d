@@ -100,10 +100,10 @@ class TetrisGame {
         this.cup = new Array(this.cup_width);
 
         for (let i = 0; i < this.cup_width; i++) {
-            this.cup[i] = new Array(this.cup_length);
+            this.cup[i] = new Array(this.cup_height);
 
-            for (let j = 0; j < this.cup_length; j++) {
-                this.cup[i][j] = new Array(this.cup_height).fill(false);
+            for (let j = 0; j < this.cup_height; j++) {
+                this.cup[i][j] = new Array(this.cup_length).fill(false);
             }
         }
     }

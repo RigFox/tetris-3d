@@ -29,8 +29,12 @@
 <script src="js/Render.js"></script>
 
 <script>
-    let game = new TetrisGame(10, 10, 10, 1);
-    let render = new Render();
+    const cup_width = 6;
+    const cup_length = 6;
+    const cup_height = 10;
+
+    let game = new TetrisGame(cup_width, cup_length, cup_height, 1);
+    let render = new Render(cup_width, cup_length, cup_height);
 
     game.setNewTetrominoHandler(function () {
         render.createTetromino(game.current_tetromino, game.current_tetromino.pos);
