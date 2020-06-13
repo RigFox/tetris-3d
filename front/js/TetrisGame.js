@@ -243,6 +243,11 @@ class TetrisGame {
                 return;
             }
 
+            if (vector.y >= this.cup_height) {
+                // Uncheck vector out top corner
+                return;
+            }
+
             if (this.cup[vector.x][vector.y][vector.z] !== false) {
                 allowMove = false;
             }
