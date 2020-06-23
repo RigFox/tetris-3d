@@ -63,38 +63,38 @@
     document.addEventListener('keydown', function (event) {
         switch (event.key) {
             case "ArrowLeft":
-                game.input("left");
+                game.input(render.getMove("left"));
                 break;
             case "ArrowRight":
-                game.input("right");
+                game.input(render.getMove("right"));
                 break;
             case "ArrowUp":
-                game.input("up");
+                game.input(render.getMove("up"));
                 break;
             case "ArrowDown":
-                game.input("down");
+                game.input(render.getMove("down"));
                 break;
             case " ": // Space
                 game.input("drop");
                 break;
             // TODO: Корректно обрабатывать любую раскладку клавиш
             case "d":
-                game.input("z_clockwise");
+                game.input(render.getMove("z_clockwise"));
                 break;
             case "a":
-                game.input("z_counterclockwise");
+                game.input(render.getMove("z_counterclockwise"));
                 break;
             case "e":
-                game.input("y_clockwise");
+                game.input(render.getMove("y_clockwise"));
                 break;
             case "q":
-                game.input("y_counterclockwise");
+                game.input(render.getMove("y_counterclockwise"));
                 break;
             case "w":
-                game.input("x_clockwise");
+                game.input(render.getMove("x_clockwise"));
                 break;
             case "s":
-                game.input("x_counterclockwise");
+                game.input(render.getMove("x_counterclockwise"));
                 break;
         }
     });

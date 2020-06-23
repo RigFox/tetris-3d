@@ -181,4 +181,69 @@ class Render {
 
         this.renderer.renderLists.dispose();
     }
+
+    getMove(move) {
+        let cameraAngle = 0
+        const azimuthalAngle = this.controls.getAzimuthalAngle();
+
+        const PI4 = Math.PI / 4;
+        const PI = Math.PI;
+
+        if (azimuthalAngle >= PI - PI4 && azimuthalAngle <= -PI + PI4) {
+            cameraAngle = 0;
+        } else if (azimuthalAngle >= PI - 3 * PI4 && azimuthalAngle <= PI - PI4) {
+            cameraAngle = 90;
+        } else if (azimuthalAngle >= -PI4 && azimuthalAngle <= PI4) {
+            cameraAngle = 180;
+        } else if (azimuthalAngle >= -PI + PI4 && azimuthalAngle <= -PI + 3 * PI4) {
+            cameraAngle = 270;
+        }
+
+        switch (move) {
+            case "left":
+                if (cameraAngle === 90) return "up";
+                if (cameraAngle === 180) return "right";
+                if (cameraAngle === 270) return "down";
+                return "left";
+            case "right":
+                if (cameraAngle === 90) return "down";
+                if (cameraAngle === 180) return "left";
+                if (cameraAngle === 270) return "up";
+                return "right";
+            case "up":
+                if (cameraAngle === 90) return "right";
+                if (cameraAngle === 180) return "down";
+                if (cameraAngle === 270) return "left";
+                return "up";
+            case "down":
+                if (cameraAngle === 90) return "left";
+                if (cameraAngle === 180) return "up";
+                if (cameraAngle === 270) return "right";
+                return "down";
+            case "z_clockwise":
+                if (cameraAngle === 90) return "x_counterclockwise";
+                if (cameraAngle === 180) return "z_counterclockwise";
+                if (cameraAngle === 270) return "x_clockwise";
+                return "z_clockwise";
+            case "z_counterclockwise":
+                if (cameraAngle === 90) return "x_clockwise";
+                if (cameraAngle === 180) return "z_clockwise";
+                if (cameraAngle === 270) return "x_counterclockwise";
+                return "z_counterclockwise";
+            case "x_clockwise":
+                if (cameraAngle === 90) return "z_clockwise";
+                if (cameraAngle === 180) return "x_counterclockwise";
+                if (cameraAngle === 270) return "z_counterclockwise";
+                return "x_clockwise";
+            case "x_counterclockwise":
+                if (cameraAngle === 90) return "z_counterclockwise";
+                if (cameraAngle === 180) return "x_clockwise";
+                if (cameraAngle === 270) return "z_clockwise";
+                return "x_counterclockwise";
+            case "y_clockwise":
+                return "y_clockwise";
+            case "y_counterclockwise":
+                return "y_counterclockwise";
+        }
+    }
 }
